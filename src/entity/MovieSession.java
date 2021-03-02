@@ -1,10 +1,12 @@
 package entity;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 
 public class MovieSession {
 
+    //Id добавляем обязательно
     private Integer id;
     private Movie movie;
     private Set<Ticket> tickets;
@@ -40,5 +42,21 @@ public class MovieSession {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MovieSession that = (MovieSession) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(movie, that.movie) &&
+                Objects.equals(tickets, that.tickets) &&
+                Objects.equals(date, that.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, movie, tickets, date);
     }
 }
