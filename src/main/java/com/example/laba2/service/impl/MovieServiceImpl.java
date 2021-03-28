@@ -1,46 +1,45 @@
-package service.impl;
+package com.example.laba2.service.impl;
 
-import entity.Movie;
-import entity.MovieSession;
-import entity.Ticket;
-import service.MovieService;
+import com.example.laba2.entity.Movie;
+import com.example.laba2.entity.MovieSession;
+import com.example.laba2.entity.Ticket;
+import com.example.laba2.repository.MovieSessionRepository;
+import com.example.laba2.repository.TicketRepository;
+import com.example.laba2.service.MovieService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
+@Service
 public class MovieServiceImpl implements MovieService {
 
+    @Autowired
+    private MovieSessionRepository movieSessionRepository;
+
+    @Autowired
+    private TicketRepository ticketRepository;
+
+    //Заменили на вызов findAll из репозитори
     @Override
     public Set<MovieSession> getAllMovies() {
-        return getAllMovieSessionsData();
+        return movieSessionRepository.findAll();
     }
 
     @Override
     public Set<MovieSession> getSessionByMovieName(String name) {
-        Set<MovieSession> movies = getAllMovieSessionsData();
-        //Оставим пока фильтр по имени вручную
-        //Дадльше это будет решено в одну строку с помощью hibernate
-        return movies.stream()
-                .filter(movie -> movie.getMovieInformation().getName().equals(name))
-                .collect(Collectors.toSet());
+        return movieSessionRepository.findAllByMovieName(name);
     }
 
     //Ищем сеанс по названию фильма и дате
     //Билет - по номеру ряда и места и ставим ему флаг isAvailable = false, что означает - билет куплен
     @Override
+    @Transactional //Указываем транзакцию, так как теперь нам нужно выполнить insert
     public Ticket buyTicket(String movieName, Date date, int row, int place) {
-        Set<MovieSession> movieSessions = getSessionByMovieName(movieName);
+        MovieSession movieSession = movieSessionRepository.findByMovieNameAndDate(movieName, date).orElse(null);
 
-        MovieSession movieSession = movieSessions.stream()
-                .filter(session -> date.equals(session.getDate()))
-                .findFirst()
-                .orElse(null);
-
-        //Здесь можно добавить исключение, если вдруг билет уже куплен
+        //Поиск билета можно выполнить и с помощью запроса в БД, но здесь мы упростим себе задачу
         Ticket ticket = movieSession.getTickets().stream()
                 .filter(value -> value.getRow() == row
                         && value.getPlace() == place)
@@ -51,11 +50,10 @@ public class MovieServiceImpl implements MovieService {
             throw new RuntimeException("Ticket not found");
         }
         ticket.setAvailable(false);
-        return ticket;
+        //Теперь сохраняем билет физически в БД. Метод save вернет обновленный объект
+        return ticketRepository.save(ticket);
     }
 
-    //Эти методы временные и будут перенесен в тесты в следующей лабе
-    //Так как пока что базы у нас нет, создаем такую заглушку с данными
     private Set<MovieSession> getAllMovieSessionsData() {
         Set<MovieSession> movieSessions = new HashSet<>();
         List<Movie> movies = getAllMoviesData();

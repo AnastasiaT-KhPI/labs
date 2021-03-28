@@ -1,11 +1,12 @@
-package service;
+package com.example.laba2.service;
 
-import entity.MovieSession;
-import entity.Ticket;
+import com.example.laba2.entity.MovieSession;
+import com.example.laba2.entity.Ticket;
 
 import java.util.Date;
 import java.util.Set;
 
+//Здесь в рамках лабы 2 можно оставить все как есть
 public interface MovieService {
 
     Set<MovieSession> getAllMovies();

@@ -1,10 +1,20 @@
-package entity;
+package com.example.laba2.entity;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "Movie")
 public class Movie {
 
-    //Id добавляем обязательно
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "description")
     private String description;
 
     public Integer getId() {

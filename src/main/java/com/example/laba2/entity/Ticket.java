@@ -1,13 +1,24 @@
-package entity;
+package com.example.laba2.entity;
 
+import javax.persistence.*;
 import java.util.Objects;
 
+@Entity
+@Table(name = "Ticket")
 public class Ticket {
 
-    //Id добавляем обязательно
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
+
+    @Column
     private int row;
+
+    @Column
     private int place;
+
+    @Column(name = "is_available", nullable = false, columnDefinition = "boolean default true")
     private boolean isAvailable = true;
 
     public Integer getId() {
